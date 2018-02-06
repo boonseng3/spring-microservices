@@ -1,0 +1,24 @@
+version: '2'
+services:
+    service-discovery:
+        container_name: service-discovery
+        build:
+            context: .
+            dockerfile: Dockerfile.service-discovery
+        image:  service-discovery:latest
+        entrypoint: ["/bin/bash",  "/home/service/service-discovery-entrypoint.sh"]
+        environment:
+            APPLICATION_PORT: 8761
+            EUREKA_PREFER_IP: 'true'
+            EUREKA_SERVER_RESPONSE_CACHE_UPDATE_INTERVAL: 500
+            EUREKA_SERVER_EVICTION_INTERVAL: 500
+        ports:
+            - "8761:8761"
+        logging:
+            driver: json-file
+        networks:
+            - service-network
+networks:
+    service-network:
+        # use the bridge driver
+        driver: bridge

@@ -1,0 +1,21 @@
+server:
+  port: ${APPLICATION_PORT:8761}
+eureka:
+  instance:
+#    non-secure-port: 0
+#    secure-port-enabled: false
+    hostname: localhost
+    preferIpAddress: ${EUREKA_PREFER_IP:false}
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+      zone: zone1
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+  server:
+    waitTimeInMsWhenSyncEmpty: 0
+    enableSelfPreservation: false
+    response-cache-update-interval-ms: ${EUREKA_SERVER_RESPONSE_CACHE_UPDATE_INTERVAL:30000}
+    eviction-interval-timer-in-ms: ${EUREKA_SERVER_EVICTION_INTERVAL:60000}

@@ -1,0 +1,6 @@
+FROM heavenhell81/ubuntu1604_openjdk8:20170418
+COPY binaries/service-discovery-0.0.1-SNAPSHOT.jar /home/service/
+COPY service-discovery-entrypoint.sh /home/service/
+#RUN mkdir /home/logs/
+#RUN chmod 755 /home/logs
+RUN chmod 755 /home/service/service-discovery-entrypoint.sh
