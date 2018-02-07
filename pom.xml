@@ -13,6 +13,7 @@
         <module>acl</module>
         <module>endpoint1</module>
         <module>test-utils</module>
+        <module>api-gateway</module>
     </modules>
     <packaging>pom</packaging>
 

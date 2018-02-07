@@ -1,10 +1,12 @@
 spring:
   application:
-    name: endpoint1
+    name: api-gateway
 server:
-  port: ${APPLICATION_PORT:8085}
+  port: ${APPLICATION_PORT:8086}
 eureka:
   instance:
+#    non-secure-port: 0
+    secure-port-enabled: false
     hostname: localhost
     metadataMap:
       instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
@@ -14,7 +16,8 @@ eureka:
     lease-expiration-duration-in-seconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION:90}
   client:
     register-with-eureka: true
-    fetch-registry: true
+    fetchRegistry: true
+    preferSameZoneEureka: true
     serviceUrl:
       defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
     healthcheck:
@@ -22,6 +25,16 @@ eureka:
     initial-instance-info-replication-interval-seconds: ${EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL:40}
     instance-info-replication-interval-seconds: ${EUREKA_CLIENT_REPLICATION_INTERVAL:30}
     registry-fetch-interval-seconds: ${EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL:30}
+zuul:
+  routes:
+    endpoint1:
+      # map /is/commands to http://REST_APPLICATION_HOST:REST_APPLICATION_PORT/api/v1/commands
+      path: /endpoint1/**
+#      url: http://${REST_APPLICATION_HOST:localhost}:${REST_APPLICATION_PORT:8085}/api/v1
+      serviceId: endpoint1
+    authentication-server:
+      path: /authentication/**
+      serviceId: authentication
 ribbon:
   eureka:
     enabled: true
