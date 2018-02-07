@@ -35,7 +35,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.authentication
-        image:  authentication-server:latest
+        image:  authentication:latest
         entrypoint: ["/bin/bash",  "/home/service/authentication-entrypoint.sh"]
         depends_on:
             - service-discovery
@@ -77,9 +77,39 @@ services:
             - "3306:3306"
         networks:
             - service-network
+    endpoint1:
+        container_name: endpoint1
+        build:
+            context: .
+            dockerfile: Dockerfile.endpoint1
+        image:  endpoint1:latest
+        entrypoint: ["/bin/bash",  "/home/service/endpoint1-entrypoint.sh"]
+        depends_on:
+            - service-discovery
+        environment:
+            APPLICATION_PORT: 8085
+            EUREKA_HOST: eureka
+            EUREKA_PORT: 8761
+            EUREKA_PREFER_IP: 'true'
+            EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL: 1
+            EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION: 2
+            EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL: 0
+            EUREKA_CLIENT_REPLICATION_INTERVAL: 1
+            EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL: 1
+        ports:
+            - "8443:8085"
+        links:
+          - service-discovery:eureka
+        logging:
+            driver: json-file
+        volumes:
+          - endpoint1-log-volume:/logs
+        networks:
+            - service-network
 networks:
     service-network:
         # use the bridge driver
         driver: bridge
 volumes:
     authentication-db-volume:
+    endpoint1-log-volume:

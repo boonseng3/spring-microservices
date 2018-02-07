@@ -1,0 +1,4 @@
+FROM heavenhell81/ubuntu1604_openjdk8:20170418
+COPY binaries/endpoint1-0.0.1-SNAPSHOT.jar /home/service/
+COPY endpoint1-entrypoint.sh /home/service/
+RUN chmod 755 /home/service/endpoint1-entrypoint.sh

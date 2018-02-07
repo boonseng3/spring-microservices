@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: interaction-server
+server:
+  port: ${APPLICATION_PORT:8085}
+eureka:
+  instance:
+    hostname: localhost
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+      zone: zone1
+    preferIpAddress: ${EUREKA_PREFER_IP:false}
+    lease-renewal-interval-in-seconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL:30}
+    lease-expiration-duration-in-seconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION:90}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+    healthcheck:
+      enabled: false
+    initial-instance-info-replication-interval-seconds: ${EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL:40}
+    instance-info-replication-interval-seconds: ${EUREKA_CLIENT_REPLICATION_INTERVAL:30}
+    registry-fetch-interval-seconds: ${EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL:30}
+ribbon:
+  eureka:
+    enabled: true

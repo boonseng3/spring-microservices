@@ -11,6 +11,8 @@
         <module>authentication</module>
         <module>spring-acl</module>
         <module>acl</module>
+        <module>endpoint1</module>
+        <module>test-utils</module>
     </modules>
     <packaging>pom</packaging>
 
