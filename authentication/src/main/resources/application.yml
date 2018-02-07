@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: authentication-server
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    platform: mysql
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/auth_server?createDatabaseIfNotExist=true
+    initialize: false
+    username: ${MYSQL_PASSWORD:root}
+    password: ${MYSQL_USERNAME:P@ssw0rd}
+    #driverClassName: com.mysql.jdbc.Driver
+    validation-query: SELECT * FROM acl_sid
+    hikari:
+      maximum-pool-size: 30
+      connection-timeout: 60000
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+server:
+  port: ${APPLICATION_PORT:8500}
+eureka:
+  instance:
+    hostname: localhost
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+      zone: zone1
+    preferIpAddress: ${EUREKA_PREFER_IP:false}
+    lease-renewal-interval-in-seconds: ${EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL:30}
+    lease-expiration-duration-in-seconds: ${EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION:90}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:${EUREKA_PORT:8761}/eureka/
+    healthcheck:
+      enabled: false
+    initial-instance-info-replication-interval-seconds: ${EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL:40}
+    instance-info-replication-interval-seconds: ${EUREKA_CLIENT_REPLICATION_INTERVAL:30}
+    registry-fetch-interval-seconds: ${EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL:30}
+ribbon:
+  eureka:
+    enabled: true
+application:
+  login:
+    url: ${AUTHENTICATION_URL:/api/v1/login}
+flyway:
+  enabled: true
+  locations: db
+  out-of-order: false
+  ignore-missing-migrations: false
+
+---
+
+spring:
+  profiles: non_eureka
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+

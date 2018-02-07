@@ -18,7 +18,68 @@ services:
             driver: json-file
         networks:
             - service-network
+    redis-server:
+        container_name: redis-server
+        build:
+            context: .
+            dockerfile: Dockerfile.redis-server
+        image:  redis-server:latest
+        ports:
+            - "6379:6379"
+        logging:
+            driver: json-file
+        networks:
+            - service-network
+    authentication:
+        container_name: authentication
+        build:
+            context: .
+            dockerfile: Dockerfile.authentication
+        image:  authentication-server:latest
+        entrypoint: ["/bin/bash",  "/home/service/authentication-entrypoint.sh"]
+        depends_on:
+            - service-discovery
+            - redis-server
+            - authentication-db
+        environment:
+            APPLICATION_PORT: 8500
+            DB_HOST: mysql
+            DB_PORT: 3306
+            EUREKA_HOST: eureka
+            EUREKA_PORT: 8761
+            EUREKA_PREFER_IP: 'true'
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
+            EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL: 1
+            EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION: 2
+            EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL: 0
+            EUREKA_CLIENT_REPLICATION_INTERVAL: 1
+            EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL: 1
+        ports:
+            - "8500:8500"
+        links:
+          - service-discovery:eureka
+          - redis-server:redis
+          - authentication-db:mysql
+        logging:
+            driver: json-file
+        networks:
+            - service-network
+    authentication-db:
+        image: mysql:5.7.17
+        environment:
+            MYSQL_ROOT_PASSWORD: P@ssw0rd
+        volumes:
+            # import data upon startup
+            - ./binaries/authentication-mysql:/docker-entrypoint-initdb.d
+            - authentication-db-volume:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        networks:
+            - service-network
 networks:
     service-network:
         # use the bridge driver
         driver: bridge
+volumes:
+    authentication-db-volume:
