@@ -106,6 +106,32 @@ services:
           - endpoint1-log-volume:/logs
         networks:
             - service-network
+    api-gateway:
+        container_name: api-gateway
+        build:
+            context: .
+            dockerfile: Dockerfile.api-gateway
+        image:  api-gateway:latest
+        entrypoint: ["/bin/bash",  "/home/service/api-gateway-entrypoint.sh"]
+        depends_on:
+            - service-discovery
+        environment:
+            EUREKA_HOST: eureka
+            EUREKA_PORT: 8761
+            EUREKA_PREFER_IP: 'true'
+            EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL: 1
+            EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION: 2
+            EUREKA_CLIENT_INITIAL_REPLICATION_INTERVAL: 0
+            EUREKA_CLIENT_REPLICATION_INTERVAL: 1
+            EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL: 1
+        ports:
+            - "8086:8086"
+        links:
+          - service-discovery:eureka
+        logging:
+            driver: json-file
+        networks:
+            - service-network
 networks:
     service-network:
         # use the bridge driver

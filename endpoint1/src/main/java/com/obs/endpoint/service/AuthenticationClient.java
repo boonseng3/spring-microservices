@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient("authentication-server")
+@FeignClient("authentication")
 public interface AuthenticationClient {
     @RequestMapping(method = RequestMethod.GET, value = "/api/v1/session_principal")
     SessionPrincipal getSessionPrincipal(@RequestHeader("X-Auth-Token") String token);

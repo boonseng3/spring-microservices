@@ -1,0 +1,4 @@
+FROM heavenhell81/ubuntu1604_openjdk8:20170418
+COPY binaries/api-gateway-0.0.1-SNAPSHOT.jar /home/service/
+COPY api-gateway-entrypoint.sh /home/service/
+RUN chmod 755 /home/service/api-gateway-entrypoint.sh

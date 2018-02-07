@@ -38,3 +38,10 @@ zuul:
 ribbon:
   eureka:
     enabled: true
+
+application:
+  authentication-filter:
+    # urls that will not be processed by authentication filter
+    ignored-urls:
+      - /endpoint1/api/v1/echo
+      - /authentication/api/v1/login

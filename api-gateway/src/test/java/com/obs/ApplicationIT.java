@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -101,6 +98,21 @@ public class ApplicationIT {
     };
 
 
+    private String login(String username, String password) {
+        MultiValueMap<String, String> loginParams = new LinkedMultiValueMap<String, String>();
+        loginParams.add("username", username);
+        loginParams.add("password", password);
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        ResponseEntity<Void> result = restTemplate.postForEntity("/authentication/api/v1/login", new HttpEntity<MultiValueMap<String, String>>(loginParams, requestHeaders), Void.class);
+        System.out.println("result.getStatusCode().value() = " + result.getStatusCode().value());
+        System.out.println("result.toString() = " + result.toString());
+        String sessionId = result.getHeaders().get("x-auth-token").get(0);
+        assertThat(sessionId).isNotEmpty();
+        logger.debug("session id: {}", sessionId);
+        return sessionId;
+    }
+
     @Test
     public void login() throws Exception {
         MultiValueMap<String, String> loginParams = new LinkedMultiValueMap<String, String>();
@@ -117,4 +129,39 @@ public class ApplicationIT {
 
 
     }
+
+    @Test
+    public void accessAdminResourceUnauthorized() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        HttpHeaders requestHeaders = new HttpHeaders();
+        ResponseEntity<Void> result = restTemplate.postForEntity("/endpoint1/api/v1/admin_resource", new HttpEntity<MultiValueMap<String, String>>(params, requestHeaders), Void.class);
+        System.out.println("result.getStatusCode().value() = " + result.getStatusCode().value());
+        System.out.println("result.toString() = " + result.toString());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+
+    }
+
+    @Test
+    public void accessAdminResourceSuccessful() throws Exception {
+        String token = login("admin","P@ssw0rd");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("x-auth-token",token);
+        ResponseEntity<Void> result = restTemplate.postForEntity("/endpoint1/api/v1/admin_resource", new HttpEntity<MultiValueMap<String, String>>(params, requestHeaders), Void.class);
+        System.out.println("result.getStatusCode().value() = " + result.getStatusCode().value());
+        System.out.println("result.toString() = " + result.toString());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void accessEcho() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        HttpHeaders requestHeaders = new HttpHeaders();
+        ResponseEntity<Void> result = restTemplate.postForEntity("/endpoint1/api/v1/echo", new HttpEntity<MultiValueMap<String, String>>(params, requestHeaders), Void.class);
+        System.out.println("result.getStatusCode().value() = " + result.getStatusCode().value());
+        System.out.println("result.toString() = " + result.toString());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
 }
